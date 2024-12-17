@@ -1,0 +1,81 @@
+#include <SoftwareSerial.h>
+
+#define in1 2
+#define in2 10
+#define in3 A2
+#define in4 A3
+#define enA 3
+#define enB 11
+
+char lastCommand = '\0'; 
+unsigned long lastReceivedTime = 0;
+const unsigned long timeout = 2000; 
+
+SoftwareSerial Bluetooth(0, 1); 
+
+void setup() {
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
+  Serial.begin(9600);
+  Bluetooth.begin(9600); 
+}
+void stopMotors() {
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+}
+
+void loop() {
+  if (Bluetooth.available()) {
+    char receivedChar = Bluetooth.read();
+    Serial.print("Received: ");
+    Serial.println(receivedChar);
+    if (receivedChar != lastCommand) {
+      lastCommand = receivedChar;
+      if (receivedChar == 'F') {
+        Serial.println("Moving Forward");
+        digitalWrite(in1, LOW);
+        digitalWrite(in2, HIGH);
+        digitalWrite(in3, LOW);
+        digitalWrite(in4, HIGH);
+        analogWrite(enA, 170);
+        analogWrite(enB, 170);
+      }  
+      if (receivedChar == 'B') {
+        Serial.println("Moving Backward");
+        digitalWrite(in1, HIGH);
+        digitalWrite(in2, LOW);
+        digitalWrite(in3, HIGH);
+        digitalWrite(in4, LOW);
+        analogWrite(enA, 170);
+        analogWrite(enB, 170);
+      } 
+      if (receivedChar == 'L') {
+        Serial.println("Turning Left");
+        digitalWrite(in1, HIGH);
+        digitalWrite(in2, LOW);
+        digitalWrite(in3, LOW);
+        digitalWrite(in4, HIGH);
+        analogWrite(enA, 120);
+        analogWrite(enB, 120);
+      } 
+      if (receivedChar == 'R') {
+        Serial.println("Turning Right");
+        digitalWrite(in1, LOW);
+        digitalWrite(in2, HIGH);
+        digitalWrite(in3, HIGH);
+        digitalWrite(in4, LOW);
+        analogWrite(enA, 120);
+        analogWrite(enB, 120);
+      }  
+      if (receivedChar == 'S') { 
+        stopMotors();
+    }
+  }
+}
+}
